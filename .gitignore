@@ -1,0 +1,12 @@
+# Visual Studio & .NET
+.vs/
+bin/
+obj/
+*.user
+*.suo
+App_Data/Blobs/
+
+# Angular & Node
+node_modules/
+.angular/
+dist/

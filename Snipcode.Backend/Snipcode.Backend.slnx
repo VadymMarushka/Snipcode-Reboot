@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Snipcode.API/Snipcode.API.csproj" />
+  <Project Path="Snipcode.Application/Snipcode.Application.csproj" />
+  <Project Path="Snipcode.Domain/Snipcode.Domain.csproj" />
+  <Project Path="Snipcode.Infrastructure/Snipcode.Infrastructure.csproj" />
+</Solution>
