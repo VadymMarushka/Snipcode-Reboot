@@ -36,7 +36,7 @@ public class ExceptionMiddleware
             UnauthorizedAccessException => (HttpStatusCode.Unauthorized, exception.Message),
             InvalidOperationException => (HttpStatusCode.BadRequest, exception.Message),
             KeyNotFoundException => (HttpStatusCode.NotFound, exception.Message),
-            _ => (HttpStatusCode.InternalServerError, "An unexpected internal server error occurred.")
+            _ => (HttpStatusCode.InternalServerError, exception.InnerException?.Message ?? exception.Message)
         };
 
         context.Response.StatusCode = (int)statusCode;

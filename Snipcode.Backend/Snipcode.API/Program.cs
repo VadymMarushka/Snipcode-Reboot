@@ -22,6 +22,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     options.Password.RequiredLength = 6;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
+    options.User.RequireUniqueEmail = true;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -29,6 +30,9 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 builder.Services.AddScoped<IBlobStorageService, LocalFileSystemStorageService>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ISnippetService, SnippetService>();
+builder.Services.AddScoped<IGroupService, GroupService>();
+builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 
 // JWT Authentication Configuration
 var jwtSecret = builder.Configuration["JwtSettings:Secret"]!;
