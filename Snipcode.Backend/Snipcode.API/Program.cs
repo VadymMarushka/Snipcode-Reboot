@@ -26,6 +26,20 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 })
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
+    ?? Array.Empty<string>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularApp", policy =>
+    {
+        policy.WithOrigins(allowedOrigins) // Передаємо масив із конфігу
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 // Application Services DI
 builder.Services.AddScoped<IBlobStorageService, LocalFileSystemStorageService>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
@@ -33,6 +47,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISnippetService, SnippetService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<IFavoriteService, FavoriteService>();
+builder.Services.AddScoped<ITagService, TagService>();
 
 // JWT Authentication Configuration
 var jwtSecret = builder.Configuration["JwtSettings:Secret"]!;
@@ -93,6 +108,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseMiddleware<ExceptionMiddleware>();
+
+app.UseCors("AllowAngularApp");
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Snipcode.Application.DTOs.Auth;
 using Snipcode.Application.Interfaces;
 
@@ -27,6 +28,20 @@ public class AuthController : ControllerBase
     {
         var response = await _authService.LoginAsync(dto);
         return Ok(response);
+    }
+
+    [HttpGet("me")]
+    [Authorize]
+    public async Task<IActionResult> GetProfile()
+    {
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                       ?? User.FindFirst("sub")?.Value;
+
+        if (!Guid.TryParse(userIdClaim, out var userId))
+            return Unauthorized();
+
+        var profile = await _authService.GetProfileAsync(userId);
+        return Ok(profile);
     }
 
     [HttpPost("refresh-token")]

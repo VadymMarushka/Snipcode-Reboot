@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Snipcode.Application.DTOs.Tags;
 
-namespace Snipcode.Application.DTOs.Tags
-{
-    internal class TagDto
-    {
-    }
-}
+public record TagDto(
+    Guid Id,
+    string Name,
+    int SnippetCount
+);

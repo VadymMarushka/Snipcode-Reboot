@@ -1,3 +1,8 @@
-﻿namespace Snipcode.Application.DTOs.Auth;
+﻿using System.ComponentModel.DataAnnotations;
 
-public record RefreshTokenRequestDto(string AccessToken, string RefreshToken);
+namespace Snipcode.Application.DTOs.Auth;
+
+public record RefreshTokenRequestDto(
+    [Required(ErrorMessage = "AccessToken is required.")] string AccessToken,
+    [Required(ErrorMessage = "RefreshToken is required.")] string RefreshToken
+);

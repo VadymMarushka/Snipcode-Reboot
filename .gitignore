@@ -10,3 +10,6 @@ App_Data/Blobs/
 node_modules/
 .angular/
 dist/
+
+# Ignore local blob storage
+**/App_Data/

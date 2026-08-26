@@ -55,6 +55,18 @@ public class AuthService : IAuthService
         return await GenerateAuthResponseAsync(user);
     }
 
+    public async Task<UserProfileDto> GetProfileAsync(Guid userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+            throw new KeyNotFoundException("User was not found.");
+
+        var snippetCount = await _dbContext.Snippets.CountAsync(s => s.AuthorId == userId);
+        var groupCount = await _dbContext.SnippetGroups.CountAsync(g => g.OwnerId == userId);
+
+        return new UserProfileDto(user.Id, user.UserName!, user.Email!, snippetCount, groupCount);
+    }
+
     public async Task<AuthResponseDto> RefreshTokenAsync(RefreshTokenRequestDto dto)
     {
         var refreshTokenEntity = await _dbContext.RefreshTokens

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Snipcode.Application.DTOs.Tags;
 
-namespace Snipcode.Application.Interfaces
+namespace Snipcode.Application.Interfaces;
+
+public interface ITagService
 {
-    internal class ITagService
-    {
-    }
+    Task<IEnumerable<TagDto>> GetAllAsync(CancellationToken ct = default);
 }
