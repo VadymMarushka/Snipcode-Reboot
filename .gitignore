@@ -1,15 +1,57 @@
+# =========================
 # Visual Studio & .NET
+# =========================
 .vs/
 bin/
 obj/
 *.user
 *.suo
 App_Data/Blobs/
-
-# Angular & Node
-node_modules/
-.angular/
-dist/
-
-# Ignore local blob storage
 **/App_Data/
+
+# =========================
+# Node & Dependencies
+# =========================
+node_modules/
+npm-debug.log
+npm-debug.log.*
+yarn-error.log
+yarn-debug.log*
+
+# =========================
+# Angular Build & Cache
+# =========================
+dist/
+.angular/
+out-tsc/
+bazel-out/
+
+# =========================
+# Testing
+# =========================
+coverage/
+
+# =========================
+# IDEs and Editors
+# =========================
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+
+# =========================
+# Environments
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db

@@ -1,0 +1,79 @@
+<hlm-card class="group relative flex flex-col justify-between rounded-xl border border-border/20 bg-card/80 dark:bg-zinc-900/50 backdrop-blur-sm transition-all duration-1000 hover:border-border hover:shadow-md">
+  
+  <!-- Header -->
+  <hlm-card-header>
+    <h3 hlmCardTitle class="text-lg font-semibold group-hover:text-primary transition-colors">
+      {{ snippet().title }}
+    </h3>
+
+    @if (snippet().description) {
+      <p hlmCardDescription class="text-sm text-muted-foreground line-clamp-2">
+        {{ snippet().description }}
+      </p>
+    }
+
+    <div hlmCardAction>
+      <span hlmBadge variant="outline" class="bg-sky-500/10 p-3 text-sky-400 border-sky-500/20 font-semibold">
+        {{ snippet().technology }}
+      </span>
+    </div>
+  </hlm-card-header>
+
+  <!-- Code Block з узором під адаптивний фон -->
+  <div hlmCardContent class="pt-0">
+    <div class="relative overflow-hidden rounded-lg border border-border/70 bg-slate-100/90 dark:bg-zinc-950 font-mono text-xs">
+      <ng-scrollbar hlm class="h-36 w-full" appearance="compact">
+        <div 
+          class="shiki-preview min-h-full min-w-full w-max"
+          [innerHTML]="highlightedCode()"
+        ></div>
+      </ng-scrollbar>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <hlm-card-footer class="flex-col items-stretch gap-3 border-t border-border/40 pt-4">
+    <div class="flex items-center justify-between text-xs">
+      <div class="flex items-center gap-2">
+        <div class="h-6 w-6 rounded-full bg-sky-500 text-white font-bold text-[10px] flex items-center justify-center uppercase">
+          {{ snippet().authorUsername[0] }}
+        </div>
+        <span class="text-muted-foreground font-medium">@{{ snippet().authorUsername }}</span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button 
+          hlmBtn 
+          variant="outline" 
+          size="sm" 
+          (click)="onCopy($event)"
+          class="h-7 px-2.5 gap-1.5 text-xs bg-secondary/50 border-border/60"
+        >
+          <ng-icon name="lucideCopy" class="text-xs" />
+          Copy
+        </button>
+
+        <a 
+          hlmBtn 
+          variant="link" 
+          size="sm" 
+          [routerLink]="['/snippets', snippet().id]"
+          class="h-7 px-0 gap-1 text-xs text-muted-foreground hover:text-foreground no-underline hover:no-underline"
+        >
+          View
+          <ng-icon name="lucideArrowRight" class="text-xs" />
+        </a>
+      </div>
+    </div>
+
+    @if (snippet().tags.length) {
+      <div class="flex flex-wrap gap-1.5">
+        @for (tag of snippet().tags; track tag) {
+          <span hlmBadge variant="secondary" class="text-[11px] font-normal px-2 py-0.5 bg-secondary/60 text-muted-foreground border-none">
+            #{{ tag }}
+          </span>
+        }
+      </div>
+    }
+  </hlm-card-footer>
+</hlm-card>

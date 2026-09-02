@@ -1,0 +1,155 @@
+<div class="container mx-auto px-4 py-4 max-w-[1600px]">
+    <!-- Top Bar: Search & Controls -->
+    <div class="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mb-8">
+        <!-- Search Input -->
+        <div class="relative w-full sm:flex-1">
+            <ng-icon name="lucideSearch"
+                class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm" />
+            <input hlmInput type="text" placeholder="Search snippet groups..."
+                class="pl-9 w-full bg-card/60 dark:bg-zinc-900/60 border-border/70 h-10" [value]="searchQuery()"
+                (input)="searchQuery.set($any($event.target).value)" />
+        </div>
+
+        <!-- Controls: Sort + Mobile Filter -->
+        <div class="flex items-center gap-x-3 w-full sm:w-auto justify-end">
+            <!-- Spartan Select Dropdown -->
+            <hlm-select [value]="selectedSortValue()" (valueChange)="onSortChange($event)"
+                [itemToString]="sortItemToString" class="flex-1 sm:flex-none sm:w-44">
+                <hlm-select-trigger
+                    class="h-10 w-full bg-card/60 dark:bg-zinc-900/60 border-border/70 rounded-lg text-sm py-4.75">
+                    <hlm-select-value placeholder="Sort by" />
+                </hlm-select-trigger>
+
+                <hlm-select-content *hlmSelectPortal class="bg-white dark:bg-zinc-900 border-border/70 shadow-md z-50">
+                    <hlm-select-group>
+                        @for (option of sortOptions; track option.value) {
+                        <hlm-select-item [value]="option.value">
+                            {{ option.label }}
+                        </hlm-select-item>
+                        }
+                    </hlm-select-group>
+                </hlm-select-content>
+            </hlm-select>
+
+            <!-- Mobile Sheet Filter Trigger -->
+            <hlm-sheet side="right" class="lg:hidden flex-1 sm:flex-none">
+                <button hlmBtn variant="outline" hlmSheetTrigger
+                    class="w-full sm:w-auto gap-2 border-border/70 bg-card/60 dark:bg-zinc-900/60 h-10">
+                    <ng-icon name="lucideSlidersHorizontal" class="text-sm" />
+                    <span>Filters</span>
+                </button>
+
+                <!-- Mobile Sheet Content -->
+                <hlm-sheet-content *hlmSheetPortal="let ctx"
+                    class="w-full sm:max-w-xs pt-2 px-4 bg-background border-l border-border">
+                    <hlm-sheet-header>
+                        <h2 hlmSheetTitle class="text-lg">Filters</h2>
+                    </hlm-sheet-header>
+
+                    <div
+                        class="py-2 px-2 space-y-6 overflow-y-auto max-h-[calc(100vh-120px)] scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                        <!-- Categories -->
+                        <div>
+                            <h4 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                                Categories</h4>
+                            <div>
+                                @for (cat of categories; track cat.id) {
+                                <button type="button" (click)="selectCategory(cat.id)"
+                                    [class]="selectedCategory() === cat.id 
+                      ? 'w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium bg-secondary/80 text-foreground'
+                      : 'w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-secondary/40 hover:text-foreground transition-colors'">
+                                    <span>{{ cat.name }}</span>
+                                    <span class="text-xs font-mono text-muted-foreground/70">{{ cat.count }}</span>
+                                </button>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Technologies -->
+                        <div>
+                            <h4 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                                Technologies</h4>
+                            <div class="space-y-2.5">
+                                @for (tech of technologies; track tech.id) {
+                                <label class="flex items-center justify-between text-sm cursor-pointer group">
+                                    <div class="flex items-center gap-2.5">
+                                        <hlm-checkbox [checked]="isTechSelected(tech.id)"
+                                            (changed)="toggleTech(tech.id)" />
+                                        <span
+                                            class="text-muted-foreground group-hover:text-foreground transition-colors">{{
+                                            tech.name }}</span>
+                                    </div>
+                                    <span class="text-sm font-mono text-muted-foreground/70">{{ tech.count }}</span>
+                                </label>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </hlm-sheet-content>
+            </hlm-sheet>
+        </div>
+    </div>
+
+    <!-- Content Area: Desktop Sidebar + Groups Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-8">
+        <!-- Desktop Sidebar -->
+        <aside class="hidden lg:block space-y-6">
+            <!-- Categories -->
+            <div>
+                <h4 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 px-3">Categories
+                </h4>
+                <div class="space-y-1">
+                    @for (cat of categories; track cat.id) {
+                    <button type="button" (click)="selectCategory(cat.id)"
+                        [class]="selectedCategory() === cat.id 
+                ? 'w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium bg-secondary dark:bg-secondary/40 text-foreground'
+                : 'w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-secondary/40 hover:text-foreground transition-colors'">
+                        <span>{{ cat.name }}</span>
+                        <span class="text-xs font-mono text-muted-foreground/70">{{ cat.count }}</span>
+                    </button>
+                    }
+                </div>
+            </div>
+
+            <!-- Technologies -->
+            <div>
+                <h4 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 px-3">Technologies
+                </h4>
+                <div class="space-y-1">
+                    @for (tech of technologies; track tech.id) {
+                    <label
+                        class="flex items-center justify-between px-3 py-1.5 rounded-md text-sm cursor-pointer group hover:bg-secondary/30 transition-colors">
+                        <div class="flex items-center gap-2.5">
+                            <hlm-checkbox [checked]="isTechSelected(tech.id)" (changed)="toggleTech(tech.id)" />
+                            <span class="text-muted-foreground group-hover:text-foreground transition-colors">{{
+                                tech.name }}</span>
+                        </div>
+                        <span class="text-xs font-mono text-muted-foreground/70">{{ tech.count }}</span>
+                    </label>
+                    }
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Cards Grid -->
+        <main>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                <!-- Використовуємо app-group-card замість сніпета -->
+                @for (group of groups(); track group.id) {
+                <app-group-card [group]="group" />
+                } @empty {
+                <!-- Empty State (адаптовано під групи) -->
+                <div class="col-span-full flex flex-col items-center justify-center py-24 text-center">
+                    <ng-icon name="lucideFolderSearch" class="text-6xl text-muted-foreground/40 mb-4" />
+                    <h3 class="text-xl font-bold text-foreground mb-1">No groups found</h3>
+                    <p class="text-sm text-muted-foreground mb-4">Try adjusting your filters or search query.</p>
+                    <button type="button" (click)="clearFilters()"
+                        class="text-sm font-medium text-cyan-400 hover:text-cyan-300 transition-colors focus:outline-none">
+                        Clear all filters
+                    </button>
+                </div>
+                }
+            </div>
+        </main>
+    </div>
+</div>

@@ -1,0 +1,40 @@
+.bg-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  
+  /* Колір сітки для Light Mode за замовчуванням */
+  background-color: rgba(0, 0, 0, 0.25);
+
+  /* Безшовна 50x50 SVG маска */
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 50 50'%3E%3Cpath d='M 50 0 L 0 0 0 50' fill='none' stroke='black' stroke-width='1'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 50 50'%3E%3Cpath d='M 50 0 L 0 0 0 50' fill='none' stroke='black' stroke-width='1'/%3E%3C/svg%3E");
+  
+  -webkit-mask-size: 50px 50px;
+  mask-size: 50px 50px;
+
+  animation: bg-scroll 1.2s linear infinite;
+  transition: background-color 0.4s ease;
+}
+
+/* Колір сітки для Dark Mode (автоматично спрацьовує при класі .dark) */
+:host-context(.dark) .bg-grid,
+:where(.dark) .bg-grid {
+  background-color: rgba(136, 203, 223, 0.25);
+}
+
+/* Анімація зсуву маски */
+@keyframes bg-scroll {
+  to {
+    -webkit-mask-position: 50px 50px;
+    mask-position: 50px 50px;
+  }
+}
+
+/* Вимкнення анімації для користувачів із чутливістю до руху */
+@media (prefers-reduced-motion: reduce) {
+  .bg-grid {
+    animation: none;
+  }
+}

@@ -1,0 +1,66 @@
+<a [routerLink]="['/groups', group().id]" class="block group outline-none h-full">
+  <hlm-card class="h-full flex flex-col transition-all duration-200 hover:border-primary/50 hover:shadow-md group-focus-visible:ring-2 group-focus-visible:ring-ring">
+    
+    <!-- Header: Іконка, Назва та Опис -->
+    <hlm-card-header class="flex flex-row items-start justify-between space-y-0 pb-2">
+      <div class="flex flex-col gap-2 w-full">
+        <div class="flex items-center gap-2.5 text-muted-foreground group-hover:text-primary transition-colors">
+          <ng-icon name="lucideFolderOpen" class="text-xl shrink-0" />
+          <h3 hlmCardTitle class="text-lg line-clamp-1 text-foreground transition-colors">
+            {{ group().name }}
+          </h3>
+        </div>
+        
+        <p hlmCardDescription class="line-clamp-2 min-h-10 text-sm">
+          {{ group().description || 'No description provided.' }}
+        </p>
+      </div>
+    </hlm-card-header>
+
+    <!-- Content: Теги технологій -->
+    <div hlmCardContent class="pb-4 pt-2 grow">
+      <div class="flex flex-wrap gap-1.5">
+        @for (tag of group().tags.slice(0, 4); track tag) {
+          <span hlmBadge variant="secondary" class="text-xs font-normal px-2 py-0.5">
+            {{ tag }}
+          </span>
+        }
+        @if (group().tags.length > 4) {
+          <span hlmBadge variant="outline" class="text-xs font-normal px-2 py-0.5 text-muted-foreground">
+            +{{ group().tags.length - 4 }}
+          </span>
+        }
+      </div>
+    </div>
+
+    <!-- Footer: Метадані (Автор, Дата, Кількість сніпетів) та Кнопка View -->
+    <hlm-card-footer class="flex items-center justify-between border-t border-border/40 pt-4 mt-auto">
+      
+      <!-- Ліва частина: Метадані -->
+      <div class="flex items-center gap-4 text-xs text-muted-foreground">
+        <!-- Автор (@username) -->
+        <span class="font-medium text-foreground hover:text-primary transition-colors" (click)="$event.preventDefault()">
+          &#64;{{ group().author }}
+        </span>
+        
+        <!-- Кількість сніпетів у папці (тепер як звичайний текст, не кнопка) -->
+        <div class="flex items-center gap-1.5 group-hover:text-foreground transition-colors" title="Total snippets">
+          <ng-icon name="lucideFiles" class="text-[14px]" />
+          <span class="font-medium">{{ group().snippetCount }}</span>
+        </div>
+
+        <!-- Дата (прихована на мобільних) -->
+        <div class="hidden sm:flex items-center gap-1.5" title="Last updated">
+          <ng-icon name="lucideCalendarDays" class="text-[14px]" />
+          <span>{{ group().updatedAt | date:'MMM d, yyyy' }}</span>
+        </div>
+      </div>
+
+      <!-- Права частина: Кнопка View (як span, стилізований під кнопку) -->
+        <div>
+            <button hlmBtn variant="outline">View<ng-icon name="lucideArrowRight" class="text-sm" /></button>
+        </div>
+
+    </hlm-card-footer>
+  </hlm-card>
+</a>
