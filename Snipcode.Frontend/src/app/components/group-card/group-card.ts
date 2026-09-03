@@ -13,17 +13,7 @@ import {
 // Spartan UI Imports
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
-import { HlmButton } from "@spartan-ng/helm/button";
-
-export interface SnippetGroup {
-  id: string;
-  name: string;
-  description: string;
-  author: string;
-  snippetCount: number;
-  tags: string[];
-  updatedAt: Date;
-}
+import { SnippetGroup } from '../../core/models/group.model';
 
 @Component({
   selector: 'app-group-card',
@@ -33,8 +23,7 @@ export interface SnippetGroup {
     RouterLink,
     NgIconComponent,
     HlmCardImports,
-    HlmBadgeImports,
-    HlmButton
+    HlmBadgeImports
 ],
   providers: [
     provideIcons({

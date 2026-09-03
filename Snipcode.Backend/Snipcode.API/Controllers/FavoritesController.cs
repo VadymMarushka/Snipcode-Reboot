@@ -1,7 +1,8 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Snipcode.API.Extensions;
 using Snipcode.Application.Interfaces;
+using System.Security.Claims;
 
 namespace Snipcode.API.Controllers;
 
@@ -20,54 +21,42 @@ public class FavoritesController : ControllerBase
     [HttpPost("snippets/{snippetId:guid}")]
     public async Task<IActionResult> AddSnippet(Guid snippetId, CancellationToken ct)
     {
-        await _favoriteService.AddSnippetToFavoritesAsync(snippetId, GetCurrentUserId(), ct);
+        await _favoriteService.AddSnippetToFavoritesAsync(snippetId, User.GetUserId(), ct);
         return Ok(new { Message = "Snippet added to favorites." });
     }
 
     [HttpDelete("snippets/{snippetId:guid}")]
     public async Task<IActionResult> RemoveSnippet(Guid snippetId, CancellationToken ct)
     {
-        await _favoriteService.RemoveSnippetFromFavoritesAsync(snippetId, GetCurrentUserId(), ct);
+        await _favoriteService.RemoveSnippetFromFavoritesAsync(snippetId, User.GetUserId(), ct);
         return NoContent();
     }
 
     [HttpGet("snippets")]
     public async Task<IActionResult> GetFavoriteSnippets(CancellationToken ct)
     {
-        var result = await _favoriteService.GetFavoriteSnippetsAsync(GetCurrentUserId(), ct);
+        var result = await _favoriteService.GetFavoriteSnippetsAsync(User.GetUserId(), ct);
         return Ok(result);
     }
 
     [HttpPost("groups/{groupId:guid}")]
     public async Task<IActionResult> AddGroup(Guid groupId, CancellationToken ct)
     {
-        await _favoriteService.AddGroupToFavoritesAsync(groupId, GetCurrentUserId(), ct);
+        await _favoriteService.AddGroupToFavoritesAsync(groupId, User.GetUserId(), ct);
         return Ok(new { Message = "Group added to favorites." });
     }
 
     [HttpDelete("groups/{groupId:guid}")]
     public async Task<IActionResult> RemoveGroup(Guid groupId, CancellationToken ct)
     {
-        await _favoriteService.RemoveGroupFromFavoritesAsync(groupId, GetCurrentUserId(), ct);
+        await _favoriteService.RemoveGroupFromFavoritesAsync(groupId, User.GetUserId(), ct);
         return NoContent();
     }
 
     [HttpGet("groups")]
     public async Task<IActionResult> GetFavoriteGroups(CancellationToken ct)
     {
-        var result = await _favoriteService.GetFavoriteGroupsAsync(GetCurrentUserId(), ct);
+        var result = await _favoriteService.GetFavoriteGroupsAsync(User.GetUserId(), ct);
         return Ok(result);
-    }
-
-    private Guid GetCurrentUserId()
-    {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                       ?? User.FindFirst("sub")?.Value;
-
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
-        {
-            throw new UnauthorizedAccessException("User ID is missing or invalid in claims.");
-        }
-        return userId;
     }
 }

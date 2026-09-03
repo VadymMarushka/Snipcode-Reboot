@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Snipcode.Domain.Enums;
 
-namespace Snipcode.Application.DTOs.Groups
-{
-    internal class GroupSummary
-    {
-    }
-}
+namespace Snipcode.Application.DTOs.Groups;
+
+public record GroupSummaryDto(
+    Guid Id,
+    string Name,
+    Category Category
+);

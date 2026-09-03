@@ -1,6 +1,6 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Snipcode.API.Extensions;
 using Snipcode.Application.DTOs.Snippets;
 using Snipcode.Application.Interfaces;
 
@@ -21,8 +21,7 @@ public class SnippetsController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Create([FromBody] CreateSnippetDto dto, CancellationToken ct)
     {
-        var userId = GetCurrentUserId();
-        var result = await _snippetService.CreateAsync(dto, userId, ct);
+        var result = await _snippetService.CreateAsync(dto, User.GetUserId(), ct);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
@@ -30,7 +29,7 @@ public class SnippetsController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
-        Guid? userId = User.Identity?.IsAuthenticated == true ? GetCurrentUserId() : null;
+        Guid? userId = User.Identity?.IsAuthenticated == true ? User.GetUserId() : null;
         var result = await _snippetService.GetByIdAsync(id, userId, ct);
         return Ok(result);
     }
@@ -47,8 +46,7 @@ public class SnippetsController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetMySnippets(CancellationToken ct)
     {
-        var userId = GetCurrentUserId();
-        var result = await _snippetService.GetMySnippetsAsync(userId, ct);
+        var result = await _snippetService.GetMySnippetsAsync(User.GetUserId(), ct);
         return Ok(result);
     }
 
@@ -56,8 +54,7 @@ public class SnippetsController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateSnippetDto dto, CancellationToken ct)
     {
-        var userId = GetCurrentUserId();
-        var result = await _snippetService.UpdateAsync(id, dto, userId, ct);
+        var result = await _snippetService.UpdateAsync(id, dto, User.GetUserId(), ct);
         return Ok(result);
     }
 
@@ -65,18 +62,7 @@ public class SnippetsController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
-        var userId = GetCurrentUserId();
-        await _snippetService.DeleteAsync(id, userId, ct);
+        await _snippetService.DeleteAsync(id, User.GetUserId(), ct);
         return NoContent();
-    }
-
-    private Guid GetCurrentUserId()
-    {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
-        {
-            throw new UnauthorizedAccessException("User ID is missing or invalid in claims.");
-        }
-        return userId;
     }
 }

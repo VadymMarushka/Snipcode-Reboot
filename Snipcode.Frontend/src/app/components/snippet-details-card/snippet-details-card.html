@@ -1,0 +1,82 @@
+<div class="flex flex-col gap-4 sm:gap-5 text-card-foreground w-full max-w-full min-w-0 overflow-hidden">
+  <!-- Header: Технологія та Група -->
+  <div class="flex items-center justify-between pr-6 min-w-0">
+    <div class="flex items-center gap-3 min-w-0">
+      <span hlmBadge variant="outline" class="bg-sky-500/10 px-3 py-1 text-sky-400 border-sky-500/20 font-semibold shrink-0">
+        {{ snippet().technology }}
+      </span>
+
+      @if (snippet().groupId) {
+        <span class="text-sm font-medium text-muted-foreground truncate">
+          AI
+        </span>
+      }
+    </div>
+  </div>
+
+  <!-- Title & Description -->
+  <div class="flex flex-col gap-1.5 min-w-0">
+    <h2 class="text-lg sm:text-2xl font-bold text-foreground leading-tight wrap-break-word">
+      {{ snippet().title }}
+    </h2>
+    @if (snippet().description) {
+      <p class="text-xs sm:text-sm text-muted-foreground wrap-break-word">
+        {{ snippet().description }}
+      </p>
+    }
+  </div>
+
+  <!-- Code Block -->
+  <div class="relative group mt-1 sm:mt-2 w-full max-w-full min-w-0 overflow-hidden rounded-xl border border-border/70 bg-slate-100/90 dark:bg-zinc-950 font-mono text-xs sm:text-[13px] shadow-inner">
+    <!-- Кнопка для десктопу (hidden на мобілці, з'являється при ховері на sm+) -->
+    <button
+      hlmBtn
+      variant="secondary"
+      size="sm"
+      (click)="onCopy()"
+      class="hidden sm:flex absolute top-3 right-3 h-8 px-3 gap-1.5 text-xs z-10 bg-background/80 dark:bg-secondary/80 backdrop-blur-md border border-border/50 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+    >
+      <ng-icon [name]="isCopied() ? 'lucideCheck' : 'lucideCopy'" class="text-xs" />
+      {{ isCopied() ? 'Copied' : 'Copy' }}
+    </button>
+
+    <ng-scrollbar hlm class="max-h-[50vh] sm:max-h-125 w-full min-w-0" appearance="compact">
+      <div
+        class="shiki-preview min-h-full min-w-full w-max"
+        [innerHTML]="highlightedCode()"
+      ></div>
+    </ng-scrollbar>
+  </div>
+
+  <!-- Footer: Автор, Дата, Теги -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mt-1 sm:mt-2 min-w-0">
+    <div class="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground min-w-0">
+      <span class="font-medium hover:text-foreground transition-colors cursor-pointer truncate">
+        @{{ snippet().authorUsername }}
+      </span>
+      <span>·</span>
+      <span class="shrink-0">{{ snippet().createdAt | date:'yyyy-MM-dd' }}</span>
+    </div>
+
+    @if (snippet().tags.length) {
+      <div class="flex flex-wrap gap-1.5 min-w-0">
+        @for (tag of snippet().tags; track tag) {
+          <span hlmBadge variant="secondary" class="text-[10px] sm:text-[11px] font-normal px-2 py-0.5 bg-secondary/40 text-muted-foreground border-none">
+            #{{ tag }}
+          </span>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Повноширинна кнопка Copy для мобілки (видима тільки на екранах < sm) -->
+  <button
+    hlmBtn
+    variant="secondary"
+    (click)="onCopy()"
+    class="flex sm:hidden w-full h-10 gap-2 text-xs font-medium bg-secondary/80 hover:bg-secondary active:scale-[0.99] border border-border/60 rounded-xl transition-all shadow-sm"
+  >
+    <ng-icon [name]="isCopied() ? 'lucideCheck' : 'lucideCopy'" class="text-sm" />
+    {{ isCopied() ? 'Copied to Clipboard!' : 'Copy Code' }}
+  </button>
+</div>

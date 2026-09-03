@@ -21,6 +21,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'groups/:id',
+    loadComponent: () =>
+      import('./pages/group-snippets/group-snippets-page').then(
+        (m) => m.GroupSnippetsPage
+      ),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

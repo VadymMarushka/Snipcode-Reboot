@@ -13,19 +13,25 @@ import { HighlightService } from '../../core/services/highlight.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { Snippet } from '../../core/models/snippet.model';
 
+import { BrnDialogImports } from '@spartan-ng/brain/dialog';
+import { HlmDialogImports } from '@spartan-ng/helm/dialog';
+import { SnippetDetailsCard } from '../snippet-details-card/snippet-details-card';
+
 @Component({
   selector: 'app-snippet-card',
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     NgIconComponent,
     HlmButtonImports,
     HlmBadgeImports,
     HlmCardImports,
     HlmScrollAreaImports,
-    NgScrollbarModule
-  ],
+    NgScrollbarModule,
+    BrnDialogImports,
+    HlmDialogImports,
+    SnippetDetailsCard
+],
   providers: [provideIcons({ lucideCopy, lucideArrowRight })],
   templateUrl: './snippet-card.html',
   styleUrl: './snippet-card.css'
@@ -57,6 +63,6 @@ export class SnippetCard {
 
   onCopy(event: Event) {
     event.stopPropagation();
-    this.copy.emit(this.snippet().id);
+    navigator.clipboard.writeText(this.snippet().codeContent);
   }
 }

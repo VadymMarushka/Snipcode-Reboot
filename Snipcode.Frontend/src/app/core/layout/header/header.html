@@ -34,10 +34,7 @@
       </button>
     } @else {
       <button hlmBtn variant="ghost" size="sm" class="gap-2 px-2" (click)="toggleAuthDemo()">
-        <div class="h-7 w-7 rounded-full bg-primary text-primary-foreground font-bold text-xs flex items-center justify-center uppercase">
-          V
-        </div>
-        <span class="text-sm font-medium">vmarushka</span>
+        <span class="text-sm font-medium">@vmarushka</span>
         <ng-icon name="lucideChevronDown" class="text-xs text-muted-foreground" />
       </button>
     }
@@ -78,10 +75,8 @@
               My Snippets
             </a>
             <button hlmBtn variant="ghost" class="justify-start text-base text-md" (click)="toggleAuthDemo()">
-              <div class="h-6 w-6 rounded-full bg-primary text-primary-foreground font-bold text-xs flex items-center justify-center mr-2 uppercase">
-                V
-              </div>
-              Profile (vmarushka)
+              <ng-icon name="lucideUser" class="mr-2 scale-120 text-muted-foreground" />
+              Profile
             </button>
           } @else {
             <!-- Guest options -->

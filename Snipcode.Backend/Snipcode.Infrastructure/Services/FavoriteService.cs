@@ -2,6 +2,7 @@
 using Snipcode.Application.DTOs.Groups;
 using Snipcode.Application.DTOs.Snippets;
 using Snipcode.Application.Interfaces;
+using Snipcode.Application.Mappings;
 using Snipcode.Domain.Entities;
 using Snipcode.Infrastructure.Data;
 
@@ -58,11 +59,9 @@ public class FavoriteService : IFavoriteService
     public async Task<IEnumerable<SnippetResponseDto>> GetFavoriteSnippetsAsync(Guid userId, CancellationToken ct = default)
     {
         var favorites = await _dbContext.UserFavoriteSnippets
-            .Include(f => f.Snippet)
-                .ThenInclude(s => s.Author)
-            .Include(f => f.Snippet)
-                .ThenInclude(s => s.SnippetTags)
-                    .ThenInclude(st => st.Tag)
+            .Include(f => f.Snippet).ThenInclude(s => s.Author)
+            .Include(f => f.Snippet).ThenInclude(s => s.Group)
+            .Include(f => f.Snippet).ThenInclude(s => s.SnippetTags).ThenInclude(st => st.Tag)
             .Where(f => f.UserId == userId)
             .OrderByDescending(f => f.AddedAt)
             .Select(f => f.Snippet)
@@ -72,22 +71,7 @@ public class FavoriteService : IFavoriteService
         foreach (var snippet in favorites)
         {
             var codeContent = await _blobStorage.GetSnippetContentAsync(snippet.BlobKey, ct);
-            var tags = snippet.SnippetTags.Select(st => st.Tag.Name).ToList();
-
-            result.Add(new SnippetResponseDto(
-                snippet.Id,
-                snippet.Title,
-                snippet.Description,
-                snippet.Technology,
-                codeContent,
-                snippet.IsPublic,
-                snippet.CreatedAt,
-                snippet.UpdatedAt,
-                snippet.AuthorId,
-                snippet.Author.UserName!,
-                snippet.GroupId,
-                tags
-            ));
+            result.Add(snippet.ToResponseDto(codeContent));
         }
 
         return result;
@@ -133,20 +117,10 @@ public class FavoriteService : IFavoriteService
     public async Task<IEnumerable<GroupResponseDto>> GetFavoriteGroupsAsync(Guid userId, CancellationToken ct = default)
     {
         return await _dbContext.UserFavoriteGroups
-            .Include(f => f.Group)
-                .ThenInclude(g => g.Snippets)
+            .Include(f => f.Group).ThenInclude(g => g.Snippets)
             .Where(f => f.UserId == userId)
             .OrderByDescending(f => f.AddedAt)
-            .Select(f => new GroupResponseDto(
-                f.Group.Id,
-                f.Group.Name,
-                f.Group.Description,
-                f.Group.Category,
-                f.Group.IsPublic,
-                f.Group.CreatedAt,
-                f.Group.OwnerId,
-                f.Group.Snippets.Count
-            ))
+            .Select(f => f.Group.ToResponseDto())
             .ToListAsync(ct);
     }
 }

@@ -8,7 +8,8 @@ import {
   lucideCode, 
   lucideFolder, 
   lucideLogIn, 
-  lucideUserPlus 
+  lucideUserPlus ,
+  lucideUser
 } from '@ng-icons/lucide';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
@@ -35,7 +36,8 @@ import { RouterLink } from '@angular/router';
       lucideCode, 
       lucideFolder, 
       lucideLogIn, 
-      lucideUserPlus 
+      lucideUserPlus ,
+        lucideUser
     })
   ],
   templateUrl: './header.html',

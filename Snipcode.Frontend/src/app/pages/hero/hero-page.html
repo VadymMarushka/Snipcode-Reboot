@@ -1,22 +1,344 @@
-<!-- Контейнер займає весь верх екрана під хедером -->
-<div class="relative overflow-hidden flex-1 flex flex-col justify-center items-center text-center px-6 -mt-16 min-h-screen">
-  <!-- Анімована CSS-сітка на фоні -->
-  <div class="bg-grid"></div>
+<div class="relative w-full overflow-hidden flex flex-col">
 
-  <!-- Hero Контент -->
-  <div class="relative z-10 flex flex-col items-center">
-    <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight max-w-3xl mb-6">
-      The developer-first snippet workspace
-    </h1>
-    <p class="text-muted-foreground text-lg max-w-xl mb-8">
-      Never write the same code twice. Upload, catalog and instantly reuse your code blocks
-    </p>
+  <!-- ==================== HERO SECTION (з анімованою сіткою) ==================== -->
+  <section
+    class="relative min-h-[calc(100vh-4rem)] flex flex-col justify-center items-center text-center px-4 sm:px-6 pt-16 pb-20">
+    <div class="bg-grid"></div>
 
-    <div class="flex gap-4">
-      <a hlmBtn variant="default" size="lg" routerLink="/snippets">
-        Explore Snippets
-      </a>
+    <div class="relative z-10 flex flex-col items-center max-w-4xl mx-auto">
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-foreground mb-6 leading-[1.1]">
+        The developer-first <br class="hidden sm:inline" />
+        snippet workspace
+      </h1>
+
+      <p class="text-muted-foreground text-base sm:text-xl max-w-2xl mb-8 leading-relaxed font-normal">
+        Never write the same code twice. Upload, catalog and instantly reuse your code blocks.
+      </p>
+
+      <div class="flex items-center gap-4">
+        <a hlmBtn variant="default" size="lg" routerLink="/snippets" class="px-6 h-12 font-semibold">
+          Explore Snippets
+        </a>
+        <a hlmBtn variant="outline" size="lg" routerLink="/login"
+          class="px-6 h-12 font-semibold bg-background/50 backdrop-blur-sm border-border/80">
+          Sign In
+        </a>
+      </div>
     </div>
+  </section>
+
+  <!-- Розділювач -->
+  <div class="w-full border-t border-border/40 relative z-20"></div>
+
+<!-- ==================== FEATURE & DEMO SECTION ==================== -->
+<section
+  class="relative z-20 bg-background text-foreground
+         pt-12 sm:pt-16 pb-16 sm:pb-24
+         px-4 sm:px-6 lg:px-8"
+>
+  <div class="max-w-7xl mx-auto">
+
+    <!-- Section heading -->
+    <h2
+      class="text-3xl sm:text-5xl font-extrabold tracking-tight
+             text-center text-foreground
+             mb-12 sm:mb-14"
+    >
+      Why Snipcode?
+    </h2>
+
+    <!-- Main content -->
+    <div
+      class="grid grid-cols-1 lg:grid-cols-12
+             gap-10 lg:gap-14 xl:gap-20
+             items-start"
+    >
+
+      <!-- ==================== VISUAL ==================== -->
+      <div
+        class="hidden lg:flex lg:col-span-6
+               w-full justify-center"
+      >
+        <div
+          class="group relative w-full max-w-140
+                 flex items-center justify-center
+                 perspective-container
+                 p-6 xl:p-8"
+        >
+
+          <!-- Main Card -->
+          <app-snippet-card
+            [snippet]="demoSnippet"
+            class="relative z-50 w-full block
+                   animate-card pause-on-hover
+                   bg-card text-card-foreground
+                   rounded-2xl
+                   border border-zinc-300 dark:border-white/80
+                   shadow-[0_0_20px_rgba(0,0,0,0.08),0_0_40px_rgba(0,0,0,0.04)]
+                   dark:shadow-[0_0_15px_rgba(255,255,255,0.35),0_0_30px_rgba(255,255,255,0.15)]
+                   transition-all duration-500
+                   hover:scale-[1.02]"
+          />
+
+          <!-- Frame 1 -->
+          <div
+            class="pointer-events-none absolute inset-6 xl:inset-8
+                   z-40 rounded-2xl border-2
+                   border-zinc-900/25 dark:border-white/40
+                   bg-transparent
+                   animate-frame-1 pause-on-hover
+                   transition-all"
+          ></div>
+
+          <!-- Frame 2 -->
+          <div
+            class="pointer-events-none absolute inset-6 xl:inset-8
+                   z-30 rounded-2xl border
+                   border-zinc-800/20 dark:border-white/30
+                   bg-transparent
+                   animate-frame-2 pause-on-hover
+                   transition-all"
+          ></div>
+
+          <!-- Frame 3 -->
+          <div
+            class="pointer-events-none absolute inset-6 xl:inset-8
+                   z-20 rounded-2xl border
+                   border-zinc-700/15 dark:border-white/20
+                   bg-transparent
+                   animate-frame-3 pause-on-hover
+                   transition-all"
+          ></div>
+
+          <!-- Frame 4 -->
+          <div
+            class="pointer-events-none absolute inset-6 xl:inset-8
+                   z-10 rounded-2xl border
+                   border-zinc-600/10 dark:border-white/10
+                   bg-transparent
+                   animate-frame-4 pause-on-hover
+                   transition-all"
+          ></div>
+
+        </div>
+      </div>
+
+
+      <!-- ==================== CONTENT ==================== -->
+      <div
+        class="lg:col-span-6
+               flex flex-col
+               pt-2 lg:pt-3"
+      >
+
+        <h3
+          class="text-2xl sm:text-3xl font-bold
+                 tracking-tight text-foreground
+                 leading-[1.15]"
+        >
+          Your personal code library,<br class="hidden sm:inline" />
+          always within reach
+        </h3>
+
+
+        <!-- Features -->
+        <div class="mt-8 sm:mt-9 space-y-7">
+
+          <!-- Feature 1 -->
+          <div>
+            <div
+              class="inline-flex items-center gap-2.5
+                     px-3.5 py-2
+                     rounded-lg
+                     bg-transparent
+                     border border-foreground/10
+                     text-foreground
+                     font-semibold
+                     text-sm sm:text-base"
+            >
+              <ng-icon
+                name="lucideRefreshCw"
+                class="text-base text-foreground shrink-0"
+              />
+              <span>Instant reuse</span>
+            </div>
+
+            <p
+              class="mt-2.5
+                     text-xs sm:text-sm
+                     text-muted-foreground
+                     leading-relaxed
+                     max-w-xl"
+            >
+              Search, copy, and use any snippet in seconds.
+              No more rewriting boilerplate.
+            </p>
+          </div>
+
+
+          <!-- Feature 2 -->
+          <div>
+            <div
+              class="inline-flex items-center gap-2.5
+                     px-3.5 py-2
+                     rounded-lg
+                     bg-transparent
+                     border border-foreground/10
+                     text-foreground
+                     font-semibold
+                     text-sm sm:text-base"
+            >
+              <ng-icon
+                name="lucideFolder"
+                class="text-base text-foreground shrink-0"
+              />
+              <span>Organized groups</span>
+            </div>
+
+            <p
+              class="mt-2.5
+                     text-xs sm:text-sm
+                     text-muted-foreground
+                     leading-relaxed
+                     max-w-xl"
+            >
+              Bundle related snippets into groups by project,
+              framework, or workflow.
+            </p>
+          </div>
+
+
+          <!-- Feature 3 -->
+          <div>
+            <div
+              class="inline-flex items-center gap-2.5
+                     px-3.5 py-2
+                     rounded-lg
+                     bg-transparent
+                     border border-foreground/10
+                     text-foreground
+                     font-semibold
+                     text-sm sm:text-base"
+            >
+              <ng-icon
+                name="lucideLock"
+                class="text-base text-foreground shrink-0"
+              />
+              <span>Public & private</span>
+            </div>
+
+            <p
+              class="mt-2.5
+                     text-xs sm:text-sm
+                     text-muted-foreground
+                     leading-relaxed
+                     max-w-xl"
+            >
+              Share your best work with the community,
+              keep the rest for yourself.
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- ==================== STATS ROW ==================== -->
+    <div
+      class="mt-14 sm:mt-16
+             pt-10 sm:pt-12
+             border-t border-foreground/10
+             grid grid-cols-3
+             max-w-2xl mx-auto w-full
+             text-center"
+    >
+      <div>
+        <div class="text-3xl sm:text-4xl font-extrabold text-foreground">
+          12k+
+        </div>
+        <div class="text-xs sm:text-sm text-muted-foreground font-medium mt-1">
+          Snippets
+        </div>
+      </div>
+
+      <div>
+        <div class="text-3xl sm:text-4xl font-extrabold text-foreground">
+          2.4k
+        </div>
+        <div class="text-xs sm:text-sm text-muted-foreground font-medium mt-1">
+          Developers
+        </div>
+      </div>
+
+      <div>
+        <div class="text-3xl sm:text-4xl font-extrabold text-foreground">
+          7
+        </div>
+        <div class="text-xs sm:text-sm text-muted-foreground font-medium mt-1">
+          Languages
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== CATEGORIES SECTION ==================== -->
+    <div
+      class="pt-12 border-t border-foreground/10
+             flex flex-col items-center mt-12"
+    >
+      <span
+        class="text-xs font-mono uppercase tracking-widest
+               text-muted-foreground mb-8 font-semibold"
+      >
+        BROWSE BY CATEGORY
+      </span>
+
+      <div
+        class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6
+               gap-3 sm:gap-4 w-full"
+      >
+        @for (cat of categories; track cat.name) {
+          <hlm-card
+            class="group flex flex-col justify-between
+                   p-4
+                   bg-card/60 dark:bg-zinc-900/40
+                   border-border/30
+                   hover:border-border
+                   transition-all duration-200
+                   cursor-pointer rounded-xl"
+          >
+            <div class="mb-3">
+              <ng-icon
+                [name]="cat.icon"
+                [class]="'text-lg ' + cat.color"
+              />
+            </div>
+
+            <div>
+              <div
+                class="font-semibold text-sm text-foreground
+                       group-hover:text-primary
+                       transition-colors"
+              >
+                {{ cat.name }}
+              </div>
+
+              <div
+                class="text-xs text-muted-foreground
+                       font-mono mt-0.5"
+              >
+                {{ cat.count }}
+              </div>
+            </div>
+          </hlm-card>
+        }
+      </div>
+    </div>
+
   </div>
+</section>
+
 
 </div>

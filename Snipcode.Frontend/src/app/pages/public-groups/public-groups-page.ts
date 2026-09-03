@@ -22,7 +22,8 @@ import { HlmSheetImports } from '@spartan-ng/helm/sheet';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 
 // Імпортуємо компонент та інтерфейс картки групи
-import { GroupCard, SnippetGroup } from '../../components/group-card/group-card';
+import { GroupCard } from '../../components/group-card/group-card';
+import { SnippetGroup } from '../../core/models/group.model';
 
 @Component({
   selector: 'app-public-groups-page',

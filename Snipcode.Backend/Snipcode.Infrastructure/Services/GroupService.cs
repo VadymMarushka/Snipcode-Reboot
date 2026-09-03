@@ -2,6 +2,7 @@
 using Snipcode.Application.DTOs.Groups;
 using Snipcode.Application.DTOs.Snippets;
 using Snipcode.Application.Interfaces;
+using Snipcode.Application.Mappings;
 using Snipcode.Domain.Entities;
 using Snipcode.Infrastructure.Data;
 
@@ -34,17 +35,15 @@ public class GroupService : IGroupService
         _dbContext.SnippetGroups.Add(group);
         await _dbContext.SaveChangesAsync(ct);
 
-        return new GroupResponseDto(group.Id, group.Name, group.Description, group.Category, group.IsPublic, group.CreatedAt, group.OwnerId, 0);
+        return group.ToResponseDto();
     }
 
     public async Task<GroupDetailResponseDto> GetByIdAsync(Guid id, Guid? currentUserId, CancellationToken ct = default)
     {
         var group = await _dbContext.SnippetGroups
-            .Include(g => g.Snippets)
-                .ThenInclude(s => s.Author)
-            .Include(g => g.Snippets)
-                .ThenInclude(s => s.SnippetTags)
-                    .ThenInclude(st => st.Tag)
+            .Include(g => g.Snippets).ThenInclude(s => s.Author)
+            .Include(g => g.Snippets).ThenInclude(s => s.Group)
+            .Include(g => g.Snippets).ThenInclude(s => s.SnippetTags).ThenInclude(st => st.Tag)
             .FirstOrDefaultAsync(g => g.Id == id, ct);
 
         if (group == null)
@@ -57,51 +56,19 @@ public class GroupService : IGroupService
         foreach (var snippet in group.Snippets)
         {
             var content = await _blobStorage.GetSnippetContentAsync(snippet.BlobKey, ct);
-            var tags = snippet.SnippetTags.Select(st => st.Tag.Name).ToList();
-
-            snippetDtos.Add(new SnippetResponseDto(
-                snippet.Id,
-                snippet.Title,
-                snippet.Description,
-                snippet.Technology,
-                content,
-                snippet.IsPublic,
-                snippet.CreatedAt,
-                snippet.UpdatedAt,
-                snippet.AuthorId,
-                snippet.Author.UserName!,
-                snippet.GroupId,
-                tags
-            ));
+            snippetDtos.Add(snippet.ToResponseDto(content));
         }
 
-        return new GroupDetailResponseDto(
-            group.Id,
-            group.Name,
-            group.Description,
-            group.Category,
-            group.IsPublic,
-            group.CreatedAt,
-            group.OwnerId,
-            snippetDtos
-        );
+        return group.ToDetailResponseDto(snippetDtos);
     }
 
     public async Task<IEnumerable<GroupResponseDto>> GetMyGroupsAsync(Guid userId, CancellationToken ct = default)
     {
         return await _dbContext.SnippetGroups
+            .Include(g => g.Snippets)
             .Where(g => g.OwnerId == userId)
-            .Select(g => new GroupResponseDto(
-                g.Id,
-                g.Name,
-                g.Description,
-                g.Category,
-                g.IsPublic,
-                g.CreatedAt,
-                g.OwnerId,
-                g.Snippets.Count
-            ))
             .OrderByDescending(g => g.CreatedAt)
+            .Select(g => g.ToResponseDto())
             .ToListAsync(ct);
     }
 
@@ -124,7 +91,7 @@ public class GroupService : IGroupService
 
         await _dbContext.SaveChangesAsync(ct);
 
-        return new GroupResponseDto(group.Id, group.Name, group.Description, group.Category, group.IsPublic, group.CreatedAt, group.OwnerId, group.Snippets.Count);
+        return group.ToResponseDto();
     }
 
     public async Task DeleteAsync(Guid id, Guid userId, CancellationToken ct = default)

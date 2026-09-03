@@ -1,8 +1,9 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Snipcode.API.Extensions;
 using Snipcode.Application.DTOs.Groups;
 using Snipcode.Application.Interfaces;
+using System.Security.Claims;
 
 namespace Snipcode.API.Controllers;
 
@@ -21,8 +22,7 @@ public class GroupsController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Create([FromBody] CreateGroupDto dto, CancellationToken ct)
     {
-        var userId = GetCurrentUserId();
-        var result = await _groupService.CreateAsync(dto, userId, ct);
+        var result = await _groupService.CreateAsync(dto, User.GetUserId(), ct);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
@@ -30,7 +30,7 @@ public class GroupsController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
-        Guid? userId = User.Identity?.IsAuthenticated == true ? GetCurrentUserId() : null;
+        Guid? userId = User.Identity?.IsAuthenticated == true ? User.GetUserId() : null;
         var result = await _groupService.GetByIdAsync(id, userId, ct);
         return Ok(result);
     }
@@ -39,8 +39,7 @@ public class GroupsController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetMyGroups(CancellationToken ct)
     {
-        var userId = GetCurrentUserId();
-        var result = await _groupService.GetMyGroupsAsync(userId, ct);
+        var result = await _groupService.GetMyGroupsAsync(User.GetUserId(), ct);
         return Ok(result);
     }
 
@@ -48,8 +47,7 @@ public class GroupsController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateGroupDto dto, CancellationToken ct)
     {
-        var userId = GetCurrentUserId();
-        var result = await _groupService.UpdateAsync(id, dto, userId, ct);
+        var result = await _groupService.UpdateAsync(id, dto, User.GetUserId(), ct);
         return Ok(result);
     }
 
@@ -57,20 +55,7 @@ public class GroupsController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
-        var userId = GetCurrentUserId();
-        await _groupService.DeleteAsync(id, userId, ct);
+        await _groupService.DeleteAsync(id, User.GetUserId(), ct);
         return NoContent();
-    }
-
-    private Guid GetCurrentUserId()
-    {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                       ?? User.FindFirst("sub")?.Value;
-
-        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
-        {
-            throw new UnauthorizedAccessException("User ID is missing or invalid in claims.");
-        }
-        return userId;
     }
 }

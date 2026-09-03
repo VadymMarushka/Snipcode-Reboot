@@ -1,4 +1,5 @@
-﻿using Snipcode.Domain.Enums;
+﻿using Snipcode.Application.DTOs.Groups;
+using Snipcode.Domain.Enums;
 
 namespace Snipcode.Application.DTOs.Snippets;
 
@@ -6,13 +7,13 @@ public record SnippetResponseDto(
     Guid Id,
     string Title,
     string? Description,
-    Technology Technology,
     string CodeContent,
+    Technology Technology,
     bool IsPublic,
     DateTime CreatedAt,
     DateTime UpdatedAt,
     Guid AuthorId,
     string AuthorUsername,
-    Guid? GroupId,
-    List<string> Tags
+    List<string> Tags,
+    GroupSummaryDto? Group
 );

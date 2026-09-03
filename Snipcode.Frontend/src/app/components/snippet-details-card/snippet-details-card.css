@@ -1,0 +1,21 @@
+:host {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* Чисті рівномірні відступи для блоку коду без накладання кнопок */
+:host ::ng-deep .shiki-preview pre.shiki {
+  background-color: transparent !important;
+  margin: 0 !important;
+  padding: 1rem !important;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  :host ::ng-deep .shiki-preview pre.shiki {
+    padding: 1.25rem !important;
+  }
+}

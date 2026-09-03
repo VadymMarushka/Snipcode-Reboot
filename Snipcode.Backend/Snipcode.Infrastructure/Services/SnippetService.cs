@@ -2,6 +2,7 @@
 using Snipcode.Application.DTOs.Common;
 using Snipcode.Application.DTOs.Snippets;
 using Snipcode.Application.Interfaces;
+using Snipcode.Application.Mappings;
 using Snipcode.Domain.Entities;
 using Snipcode.Infrastructure.Data;
 
@@ -47,8 +48,14 @@ public class SnippetService : ISnippetService
             _dbContext.Snippets.Add(snippet);
             await _dbContext.SaveChangesAsync(ct);
 
-            var author = await _dbContext.Users.FindAsync(new object[] { userId }, ct);
-            return MapToResponseDto(snippet, author?.UserName ?? string.Empty, dto.CodeContent);
+            // Підвантажуємо групу та автора для маппінгу
+            await _dbContext.Entry(snippet).Reference(s => s.Author).LoadAsync(ct);
+            if (snippet.GroupId.HasValue)
+            {
+                await _dbContext.Entry(snippet).Reference(s => s.Group).LoadAsync(ct);
+            }
+
+            return snippet.ToResponseDto(dto.CodeContent);
         }
         catch
         {
@@ -61,8 +68,8 @@ public class SnippetService : ISnippetService
     {
         var snippet = await _dbContext.Snippets
             .Include(s => s.Author)
-            .Include(s => s.SnippetTags)
-                .ThenInclude(st => st.Tag)
+            .Include(s => s.Group)
+            .Include(s => s.SnippetTags).ThenInclude(st => st.Tag)
             .FirstOrDefaultAsync(s => s.Id == id, ct);
 
         if (snippet == null)
@@ -72,19 +79,18 @@ public class SnippetService : ISnippetService
             throw new UnauthorizedAccessException("You do not have access to this private snippet.");
 
         var codeContent = await _blobStorage.GetSnippetContentAsync(snippet.BlobKey, ct);
-        return MapToResponseDto(snippet, snippet.Author.UserName!, codeContent);
+        return snippet.ToResponseDto(codeContent);
     }
 
     public async Task<PagedResultDto<SnippetResponseDto>> GetPublicSnippetsAsync(SnippetQueryDto query, CancellationToken ct = default)
     {
         var baseQuery = _dbContext.Snippets
             .Include(s => s.Author)
-            .Include(s => s.SnippetTags)
-                .ThenInclude(st => st.Tag)
+            .Include(s => s.Group)
+            .Include(s => s.SnippetTags).ThenInclude(st => st.Tag)
             .Where(s => s.IsPublic)
             .AsQueryable();
 
-        // 1. Фільтрація за ключовим словом (Title або Description)
         if (!string.IsNullOrWhiteSpace(query.SearchTerm))
         {
             var term = query.SearchTerm.Trim().ToLower();
@@ -93,13 +99,11 @@ public class SnippetService : ISnippetService
                 (s.Description != null && s.Description.ToLower().Contains(term)));
         }
 
-        // 2. Фільтрація за мовою/технологією
         if (query.Technology.HasValue)
         {
             baseQuery = baseQuery.Where(s => s.Technology == query.Technology.Value);
         }
 
-        // 3. Фільтрація за тегом
         if (!string.IsNullOrWhiteSpace(query.Tag))
         {
             var tag = query.Tag.Trim().ToLower();
@@ -108,7 +112,6 @@ public class SnippetService : ISnippetService
 
         var totalCount = await baseQuery.CountAsync(ct);
 
-        // 4. Пагінація
         var pageNumber = query.PageNumber < 1 ? 1 : query.PageNumber;
         var pageSize = query.PageSize is < 1 or > 50 ? 10 : query.PageSize;
 
@@ -122,7 +125,7 @@ public class SnippetService : ISnippetService
         foreach (var snippet in snippets)
         {
             var codeContent = await _blobStorage.GetSnippetContentAsync(snippet.BlobKey, ct);
-            resultList.Add(MapToResponseDto(snippet, snippet.Author.UserName!, codeContent));
+            resultList.Add(snippet.ToResponseDto(codeContent));
         }
 
         return new PagedResultDto<SnippetResponseDto>(resultList, totalCount, pageNumber, pageSize);
@@ -132,8 +135,8 @@ public class SnippetService : ISnippetService
     {
         var snippets = await _dbContext.Snippets
             .Include(s => s.Author)
-            .Include(s => s.SnippetTags)
-                .ThenInclude(st => st.Tag)
+            .Include(s => s.Group)
+            .Include(s => s.SnippetTags).ThenInclude(st => st.Tag)
             .Where(s => s.AuthorId == userId)
             .OrderByDescending(s => s.CreatedAt)
             .ToListAsync(ct);
@@ -142,7 +145,7 @@ public class SnippetService : ISnippetService
         foreach (var snippet in snippets)
         {
             var codeContent = await _blobStorage.GetSnippetContentAsync(snippet.BlobKey, ct);
-            result.Add(MapToResponseDto(snippet, snippet.Author.UserName!, codeContent));
+            result.Add(snippet.ToResponseDto(codeContent));
         }
 
         return result;
@@ -152,8 +155,8 @@ public class SnippetService : ISnippetService
     {
         var snippet = await _dbContext.Snippets
             .Include(s => s.Author)
-            .Include(s => s.SnippetTags)
-                .ThenInclude(st => st.Tag)
+            .Include(s => s.Group)
+            .Include(s => s.SnippetTags).ThenInclude(st => st.Tag)
             .FirstOrDefaultAsync(s => s.Id == id, ct);
 
         if (snippet == null)
@@ -178,7 +181,7 @@ public class SnippetService : ISnippetService
         }
 
         await _dbContext.SaveChangesAsync(ct);
-        return MapToResponseDto(snippet, snippet.Author.UserName!, dto.CodeContent);
+        return snippet.ToResponseDto(dto.CodeContent);
     }
 
     public async Task DeleteAsync(Guid id, Guid userId, CancellationToken ct = default)
@@ -209,25 +212,5 @@ public class SnippetService : ISnippetService
 
             snippet.SnippetTags.Add(new SnippetTag { Snippet = snippet, Tag = tag });
         }
-    }
-
-    private static SnippetResponseDto MapToResponseDto(Snippet snippet, string authorUsername, string codeContent)
-    {
-        var tags = snippet.SnippetTags.Select(st => st.Tag.Name).ToList();
-
-        return new SnippetResponseDto(
-            snippet.Id,
-            snippet.Title,
-            snippet.Description,
-            snippet.Technology,
-            codeContent,
-            snippet.IsPublic,
-            snippet.CreatedAt,
-            snippet.UpdatedAt,
-            snippet.AuthorId,
-            authorUsername,
-            snippet.GroupId,
-            tags
-        );
     }
 }

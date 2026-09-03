@@ -5,7 +5,6 @@
     <hlm-card-header class="flex flex-row items-start justify-between space-y-0 pb-2">
       <div class="flex flex-col gap-2 w-full">
         <div class="flex items-center gap-2.5 text-muted-foreground group-hover:text-primary transition-colors">
-          <ng-icon name="lucideFolderOpen" class="text-xl shrink-0" />
           <h3 hlmCardTitle class="text-lg line-clamp-1 text-foreground transition-colors">
             {{ group().name }}
           </h3>
@@ -33,33 +32,33 @@
       </div>
     </div>
 
-    <!-- Footer: Метадані (Автор, Дата, Кількість сніпетів) та Кнопка View -->
+    <!-- Footer: Метадані та Кнопка View -->
     <hlm-card-footer class="flex items-center justify-between border-t border-border/40 pt-4 mt-auto">
       
       <!-- Ліва частина: Метадані -->
       <div class="flex items-center gap-4 text-xs text-muted-foreground">
-        <!-- Автор (@username) -->
         <span class="font-medium text-foreground hover:text-primary transition-colors" (click)="$event.preventDefault()">
           &#64;{{ group().author }}
         </span>
         
-        <!-- Кількість сніпетів у папці (тепер як звичайний текст, не кнопка) -->
         <div class="flex items-center gap-1.5 group-hover:text-foreground transition-colors" title="Total snippets">
           <ng-icon name="lucideFiles" class="text-[14px]" />
           <span class="font-medium">{{ group().snippetCount }}</span>
         </div>
 
-        <!-- Дата (прихована на мобільних) -->
         <div class="hidden sm:flex items-center gap-1.5" title="Last updated">
           <ng-icon name="lucideCalendarDays" class="text-[14px]" />
           <span>{{ group().updatedAt | date:'MMM d, yyyy' }}</span>
         </div>
       </div>
 
-      <!-- Права частина: Кнопка View (як span, стилізований під кнопку) -->
-        <div>
-            <button hlmBtn variant="outline">View<ng-icon name="lucideArrowRight" class="text-sm" /></button>
-        </div>
+      <!-- Права частина: Кнопка View (стилізована через span) -->
+      <div>
+        <span hlmBtn variant="outline" class="gap-1.5 text-xs">
+          View
+          <ng-icon name="lucideArrowRight" class="text-sm" />
+        </span>
+      </div>
 
     </hlm-card-footer>
   </hlm-card>
