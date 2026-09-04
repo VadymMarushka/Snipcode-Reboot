@@ -11,7 +11,7 @@ import { HlmScrollAreaImports } from '@spartan-ng/helm/scroll-area';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 import { HighlightService } from '../../core/services/highlight.service';
 import { ThemeService } from '../../core/services/theme.service';
-import { Snippet } from '../../core/models/snippet.model';
+import { SnippetResponseDto } from '../../core/models/snippet.model';
 
 import { BrnDialogImports } from '@spartan-ng/brain/dialog';
 import { HlmDialogImports } from '@spartan-ng/helm/dialog';
@@ -30,7 +30,7 @@ import { SnippetDetailsCard } from '../snippet-details-card/snippet-details-card
     NgScrollbarModule,
     BrnDialogImports,
     HlmDialogImports,
-    SnippetDetailsCard
+    SnippetDetailsCard,
 ],
   providers: [provideIcons({ lucideCopy, lucideArrowRight })],
   templateUrl: './snippet-card.html',
@@ -40,7 +40,7 @@ export class SnippetCard {
   private highlightService = inject(HighlightService);
   private themeService = inject(ThemeService);
 
-  snippet = input.required<Snippet>();
+  snippet = input.required<SnippetResponseDto>();
   copy = output<string>();
 
   highlightedCode = signal<SafeHtml>('');

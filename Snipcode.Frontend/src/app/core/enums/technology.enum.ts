@@ -4,5 +4,7 @@ export enum Technology {
   CSharp = 'CSharp',
   HTML = 'HTML',
   CSS = 'CSS',
+  SQL = 'SQL',
+  Go = 'Go',
   Python = 'Python'
 }

@@ -1,6 +1,7 @@
 ﻿using Snipcode.Application.DTOs.Groups;
 using Snipcode.Application.DTOs.Snippets;
 using Snipcode.Domain.Entities;
+using Snipcode.Domain.Enums;
 
 namespace Snipcode.Application.Mappings;
 
@@ -16,7 +17,9 @@ public static class GroupMappingExtensions
             group.IsPublic,
             group.CreatedAt,
             group.OwnerId,
-            group.Snippets?.Count ?? 0
+            group.Owner?.UserName ?? string.Empty,
+            group.Snippets?.Count ?? 0,
+            group.Snippets?.Select(s => s.Technology).Distinct() ?? Enumerable.Empty<Technology>()
         );
     }
 
@@ -30,7 +33,9 @@ public static class GroupMappingExtensions
             group.IsPublic,
             group.CreatedAt,
             group.OwnerId,
-            snippets
+            group.Owner?.UserName ?? string.Empty,
+            snippets,
+            group.Snippets?.Select(s => s.Technology).Distinct() ?? Enumerable.Empty<Technology>()
         );
     }
 }

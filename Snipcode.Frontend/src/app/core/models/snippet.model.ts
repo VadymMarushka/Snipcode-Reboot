@@ -1,16 +1,18 @@
-import { Technology } from "./technology.enum";
+// src/app/core/models/snippet.model.ts
+import { Technology } from '../enums/technology.enum';
+import { GroupSummaryDto } from './group.model';
 
-export interface Snippet {
-  id: string; // Guid
+export interface SnippetResponseDto {
+  id: string;
   title: string;
-  description: string | null; // string?
-  technology: Technology;
+  description: string | null;
   codeContent: string;
+  technology: Technology;
   isPublic: boolean;
-  createdAt: string; // DateTime
-  updatedAt: string; // DateTime
-  authorId: string; // Guid
+  createdAt: string;
+  updatedAt: string;
+  authorId: string;
   authorUsername: string;
-  groupId: string | null; // Guid?
   tags: string[];
+  group: GroupSummaryDto | null;
 }

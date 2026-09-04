@@ -6,7 +6,7 @@ import { lucideCopy, lucideCheck } from '@ng-icons/lucide';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { NgScrollbarModule } from 'ngx-scrollbar';
-import { Snippet } from '../../core/models/snippet.model';
+import { SnippetResponseDto } from '../../core/models/snippet.model';
 import { HighlightService } from '../../core/services/highlight.service';
 
 @Component({
@@ -26,7 +26,7 @@ import { HighlightService } from '../../core/services/highlight.service';
   styleUrl: './snippet-details-card.css'
 })
 export class SnippetDetailsCard {
-  snippet = input.required<Snippet>();
+  snippet = input.required<SnippetResponseDto>();
 
   private highlightService = inject(HighlightService);
 

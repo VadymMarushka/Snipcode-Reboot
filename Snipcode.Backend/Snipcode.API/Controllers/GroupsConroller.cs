@@ -26,6 +26,14 @@ public class GroupsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
+    [HttpGet("public")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetPublic([FromQuery] GroupQueryDto query, CancellationToken ct)
+    {
+        var result = await _groupService.GetPublicGroupsAsync(query, ct);
+        return Ok(result);
+    }
+
     [HttpGet("{id:guid}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
@@ -37,9 +45,9 @@ public class GroupsController : ControllerBase
 
     [HttpGet("my")]
     [Authorize]
-    public async Task<IActionResult> GetMyGroups(CancellationToken ct)
+    public async Task<IActionResult> GetMyGroups([FromQuery] GroupQueryDto query, CancellationToken ct)
     {
-        var result = await _groupService.GetMyGroupsAsync(User.GetUserId(), ct);
+        var result = await _groupService.GetMyGroupsAsync(User.GetUserId(), query, ct);
         return Ok(result);
     }
 

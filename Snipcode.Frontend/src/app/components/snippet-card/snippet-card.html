@@ -1,13 +1,11 @@
 <hlm-dialog #dialog>
-  <!-- Клік по всій картці викликає open() модалки -->
-  <div (click)="dialog.open()" class="block outline-none h-full cursor-pointer">
+  <!-- Прибрано (click) звідси -->
+  <div class="block outline-none h-full">
     
-    <!-- ЗМІНЕНО: замість transition-all duration-1000 використовуємо transition-[border-color,box-shadow] duration-200 -->
     <hlm-card class="group relative flex flex-col justify-between rounded-xl border border-border/20 bg-card/80 dark:bg-zinc-900/50 backdrop-blur-sm transition-[border-color,box-shadow] duration-200 hover:border-border hover:shadow-md">
       
       <!-- Header -->
       <hlm-card-header>
-        <!-- ЗМІНЕНО: transition-colors збалансовано через duration-200 -->
         <h3 hlmCardTitle class="text-lg font-semibold group-hover:text-primary transition-colors duration-200 mr-4 line-clamp-1">
           {{ snippet().title }}
         </h3>
@@ -25,9 +23,12 @@
         </div>
       </hlm-card-header>
 
-      <!-- Code Block -->
+      <!-- Code Block: клік тут відкриває модалку -->
       <div hlmCardContent class="pt-0">
-        <div class="relative overflow-hidden rounded-lg border border-border/70 bg-slate-100/90 dark:bg-zinc-950 font-mono text-xs">
+        <div 
+          (click)="dialog.open()"
+          class="relative overflow-hidden rounded-lg border border-border/70 bg-slate-100/90 dark:bg-zinc-950 font-mono text-xs cursor-pointer"
+        >
           <ng-scrollbar hlm class="h-36 w-full" appearance="compact">
             <div 
               class="shiki-preview min-h-full min-w-full w-max"
@@ -56,10 +57,12 @@
               Copy
             </button>
 
+            <!-- View button: клік тут теж відкриває модалку -->
             <button 
               hlmBtn 
               variant="outline" 
               size="sm" 
+              (click)="dialog.open()"
               class="h-7 px-2.5 gap-1.5 text-xs bg-secondary/50 border-border/60"
             >
               View
@@ -84,7 +87,7 @@
   <!-- Вміст модалки -->
   <hlm-dialog-content 
     *brnDialogContent="let ctx" 
-    class="w-[calc(100vw-2rem)] sm:w-full sm:max-w-3xl border-border/40 bg-card/95 backdrop-blur-xl p-4 sm:p-6 rounded-2xl shadow-2xl min-w-0 overflow-hidden"
+    class="w-[calc(100vw-2rem)] sm:w-full max-h-[90vh] sm:max-w-3xl border-border/40 bg-card/95 backdrop-blur-xl p-4 sm:p-6 rounded-2xl shadow-2xl min-w-0 overflow-hidden"
   >
     <app-snippet-details-card 
       [snippet]="snippet()" 

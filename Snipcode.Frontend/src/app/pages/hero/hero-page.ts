@@ -16,8 +16,9 @@ import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { SnippetCard } from '../../components/snippet-card/snippet-card'; 
-import { Snippet } from '../../core/models/snippet.model';
-import { Technology } from '../../core/models/technology.enum';
+import { SnippetResponseDto } from '../../core/models/snippet.model';
+import { Technology } from '../../core/enums/technology.enum';
+import { Category } from '../../core/enums/category.enum';
 
 @Component({
   selector: 'app-hero-page',
@@ -48,7 +49,7 @@ import { Technology } from '../../core/models/technology.enum';
 })
 export class HeroPage {
   // Мок-сніпет для демонстрації в Hero
-  demoSnippet: Snippet = {
+  demoSnippet: SnippetResponseDto = {
     id: 'demo-1',
     title: 'useDebounce.ts',
     description: 'Custom React hook for debouncing fast-changing inputs and search requests.',
@@ -81,7 +82,11 @@ export function SnippetSearch() {
     createdAt: '',
     updatedAt: '',
     authorId: '',
-    groupId: null
+    group: {
+      id: '1',
+      name: 'raaah',
+      category: Category.Backend
+    }
   };
 
   // Категорії для нижнього блоку

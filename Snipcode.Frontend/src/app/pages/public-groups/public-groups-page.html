@@ -52,14 +52,13 @@
                         <div>
                             <h4 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
                                 Categories</h4>
-                            <div>
+                            <div class="space-y-1">
                                 @for (cat of categories; track cat.id) {
                                 <button type="button" (click)="selectCategory(cat.id)"
                                     [class]="selectedCategory() === cat.id 
                       ? 'w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium bg-secondary/80 text-foreground'
                       : 'w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-secondary/40 hover:text-foreground transition-colors'">
                                     <span>{{ cat.name }}</span>
-                                    <span class="text-xs font-mono text-muted-foreground/70">{{ cat.count }}</span>
                                 </button>
                                 }
                             </div>
@@ -79,7 +78,6 @@
                                             class="text-muted-foreground group-hover:text-foreground transition-colors">{{
                                             tech.name }}</span>
                                     </div>
-                                    <span class="text-sm font-mono text-muted-foreground/70">{{ tech.count }}</span>
                                 </label>
                                 }
                             </div>
@@ -105,7 +103,6 @@
                 ? 'w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium bg-secondary dark:bg-secondary/40 text-foreground'
                 : 'w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-secondary/40 hover:text-foreground transition-colors'">
                         <span>{{ cat.name }}</span>
-                        <span class="text-xs font-mono text-muted-foreground/70">{{ cat.count }}</span>
                     </button>
                     }
                 </div>
@@ -124,7 +121,6 @@
                             <span class="text-muted-foreground group-hover:text-foreground transition-colors">{{
                                 tech.name }}</span>
                         </div>
-                        <span class="text-xs font-mono text-muted-foreground/70">{{ tech.count }}</span>
                     </label>
                     }
                 </div>
@@ -133,23 +129,30 @@
 
         <!-- Main Cards Grid -->
         <main>
+            @if (isLoading()) {
+            <!-- Loading Indicator -->
+            <div class="flex flex-col items-center justify-center py-24">
+                <ng-icon name="lucideLoader2" class="text-4xl animate-spin text-muted-foreground mb-2" />
+                <p class="text-sm text-muted-foreground">Loading groups...</p>
+            </div>
+            } @else {
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                <!-- Використовуємо app-group-card замість сніпета -->
                 @for (group of groups(); track group.id) {
                 <app-group-card [group]="group" />
                 } @empty {
-                <!-- Empty State (адаптовано під групи) -->
+                <!-- Empty State -->
                 <div class="col-span-full flex flex-col items-center justify-center py-24 text-center">
                     <ng-icon name="lucideFolderSearch" class="text-6xl text-muted-foreground/40 mb-4" />
                     <h3 class="text-xl font-bold text-foreground mb-1">No groups found</h3>
                     <p class="text-sm text-muted-foreground mb-4">Try adjusting your filters or search query.</p>
                     <button type="button" (click)="clearFilters()"
-                        class="text-sm font-medium text-cyan-400 hover:text-cyan-300 transition-colors focus:outline-none">
+                        class="text-sm font-medium text-foreground/60 hover:text-foreground transition-colors focus:outline-none">
                         Clear all filters
                     </button>
                 </div>
                 }
             </div>
+            }
         </main>
     </div>
 </div>

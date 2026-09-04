@@ -8,5 +8,6 @@ public enum Technology
     JavaScript,
     SQL,
     Go,
-    HTML_CSS
+    HTML,
+    CSS
 }

@@ -1,4 +1,4 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { 
@@ -6,7 +6,8 @@ import {
   lucideSlidersHorizontal, 
   lucideX, 
   lucideChevronDown,
-  lucideFolderSearch // Використовуємо іншу іконку для порожнього стану груп
+  lucideFolderSearch,
+  lucideLoader2
 } from '@ng-icons/lucide';
 
 import { HlmButtonImports } from '@spartan-ng/helm/button';
@@ -14,16 +15,18 @@ import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmCheckboxImports } from '@spartan-ng/helm/checkbox';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 
-// Sheet Imports (Brain + Helm)
+// Sheet Imports
 import { BrnSheetImports } from '@spartan-ng/brain/sheet';
 import { HlmSheetImports } from '@spartan-ng/helm/sheet';
 
 // Select Imports
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 
-// Імпортуємо компонент та інтерфейс картки групи
 import { GroupCard } from '../../components/group-card/group-card';
-import { SnippetGroup } from '../../core/models/group.model';
+import { GroupService } from '../../core/services/group.service';
+import { Category } from '../../core/enums/category.enum';
+import { Technology } from '../../core/enums/technology.enum';
+import { GroupQueryDto } from '../../core/models/query.model';
 
 @Component({
   selector: 'app-public-groups-page',
@@ -38,7 +41,7 @@ import { SnippetGroup } from '../../core/models/group.model';
     BrnSheetImports,
     HlmSheetImports,
     HlmSelectImports,
-    GroupCard // Компонент групи замість сніпета
+    GroupCard
   ],
   providers: [
     provideIcons({ 
@@ -46,44 +49,71 @@ import { SnippetGroup } from '../../core/models/group.model';
       lucideSlidersHorizontal, 
       lucideX, 
       lucideChevronDown,
-      lucideFolderSearch
+      lucideFolderSearch,
+      lucideLoader2
     })
   ],
   templateUrl: './public-groups-page.html',
 })
 export class PublicGroupsPage {
-  searchQuery = signal('');
-  selectedCategory = signal('all');
-  selectedTechs = signal<string[]>([]);
+  private groupService = inject(GroupService);
+
+  public readonly isLoading = this.groupService.isLoading;
   
+  // Отримуємо списки з сервісу
+  public readonly publicGroupsState = this.groupService.publicGroupsState;
+  groups = computed(() => this.publicGroupsState()?.items ?? []);
+  totalGroups = computed(() => this.publicGroupsState()?.totalCount ?? 0);
+
+  // Стейт фільтрів
+  searchQuery = signal('');
+  selectedCategory = signal<Category | 'all'>('all');
+  selectedTechs = signal<Technology[]>([]);
+
+public readonly categories: { id: Category | 'all'; name: string }[] = [
+  { id: 'all', name: 'All Groups' },
+  { id: Category.Backend, name: 'Backend' },
+  { id: Category.Frontend, name: 'Frontend' },
+  { id: Category.DevOps, name: 'DevOps' },
+  { id: Category.AI, name: 'AI' },
+  { id: Category.DataScience, name: 'Data Science' },
+  { id: Category.Mobile, name: 'Mobile' },
+];
+
+public readonly technologies: { id: Technology; name: string }[] = [
+  { id: Technology.TypeScript, name: 'TypeScript' },
+  { id: Technology.JavaScript, name: 'JavaScript' },
+  { id: Technology.CSharp, name: 'C#' },
+  { id: Technology.HTML, name: 'HTML' },
+  { id: Technology.CSS, name: 'CSS' },
+  { id: Technology.SQL, name: 'SQL' },
+  { id: Technology.Go, name: 'Go' },
+  { id: Technology.Python, name: 'Python' },
+];
+
   public readonly sortOptions = [
-    { label: 'Latest Updated', value: 'latest' },
-    { label: 'Most Snippets', value: 'popular' },
-    { label: 'Recently Created', value: 'newest' },
+    { label: 'Latest', value: 'latest' },
+    { label: 'Oldest', value: 'oldest' },
   ];
   selectedSortValue = signal<string>('latest');
 
   public readonly sortItemToString = (value: string) => 
     this.sortOptions.find((opt) => opt.value === value)?.label || '';
 
-  categories = [
-    { id: 'all', name: 'All Groups', count: 142 },
-    { id: 'backend', name: 'Backend', count: 56 },
-    { id: 'frontend', name: 'Frontend', count: 48 },
-    { id: 'devops', name: 'DevOps', count: 21 },
-    { id: 'data-science', name: 'Data Science', count: 17 }
-  ];
-
-  technologies = [
-    { id: 'angular', name: 'Angular', count: 28 },
-    { id: 'react', name: 'React', count: 32 },
-    { id: 'dotnet', name: '.NET', count: 41 },
-    { id: 'python', name: 'Python', count: 19 },
-    { id: 'docker', name: 'Docker', count: 15 },
-    { id: 'kubernetes', name: 'Kubernetes', count: 9 },
-  ];
-
-  totalGroups = computed(() => this.groups().length);
+  constructor() {
+    effect(() => {
+      const query: GroupQueryDto = {
+        searchTerm: this.searchQuery() || undefined,
+        category: this.selectedCategory() === 'all' ? undefined : (this.selectedCategory() as Category),
+        technologies: this.selectedTechs().length > 0 ? this.selectedTechs() : undefined,
+        sortBy: this.selectedSortValue(),
+        pageNumber: 1,
+        pageSize: 12
+      };
+      console.log(this.selectedSortValue());
+      this.groupService.loadPublicGroups(query);
+    });
+  }
 
   onSortChange(value: string | null | undefined): void {
     if (value) {
@@ -91,85 +121,27 @@ export class PublicGroupsPage {
     }
   }
 
-  selectCategory(id: string) {
-    this.selectedCategory.set(id);
+  selectCategory(catId: Category | 'all') {
+    this.selectedCategory.set(catId);
   }
 
-  toggleTech(id: string) {
+  toggleTech(techId: Technology) {
     const current = this.selectedTechs();
-    if (current.includes(id)) {
-      this.selectedTechs.set(current.filter((t) => t !== id));
+    if (current.includes(techId)) {
+      this.selectedTechs.set(current.filter((t) => t !== techId));
     } else {
-      this.selectedTechs.set([...current, id]);
+      this.selectedTechs.set([...current, techId]);
     }
   }
 
-  isTechSelected(id: string): boolean {
-    return this.selectedTechs().includes(id);
+  isTechSelected(techId: Technology): boolean {
+    return this.selectedTechs().includes(techId);
   }
 
   clearFilters(): void {
     this.searchQuery.set('');
     this.selectedCategory.set('all');
     this.selectedTechs.set([]);
-    this.selectedSortValue.set('latest');
+    this.selectedSortValue.set('newest');
   }
-
-  // Мокові дані для груп
-  groups = signal<SnippetGroup[]>([
-    {
-      id: 'g-1',
-      name: 'Enterprise Angular Patterns',
-      description: 'Advanced state management, signal store architectures, and DI tricks for large-scale Angular applications.',
-      author: 'vmarushka',
-      snippetCount: 24,
-      tags: ['Angular', 'Signals', 'RxJS', 'TypeScript', 'Architecture'],
-      updatedAt: new Date('2026-03-01T14:20:00Z')
-    },
-    {
-      id: 'g-2',
-      name: '.NET Microservices Boilerplate',
-      description: 'Essential snippets for setting up DDD, MediatR, and CQRS in .NET 8 microservices.',
-      author: 'dotnet_ninja',
-      snippetCount: 42,
-      tags: ['.NET', 'C#', 'Microservices', 'MediatR', 'CQRS', 'Docker'],
-      updatedAt: new Date('2026-02-28T09:15:00Z')
-    },
-    {
-      id: 'g-3',
-      name: 'Tailwind UI Components',
-      description: 'A collection of beautiful, fully responsive Tailwind CSS components ready to be copy-pasted.',
-      author: 'css_wizard',
-      snippetCount: 128,
-      tags: ['Tailwind', 'CSS', 'UI', 'Frontend'],
-      updatedAt: new Date('2026-02-25T11:45:00Z')
-    },
-    {
-      id: 'g-4',
-      name: 'Python Data Engineering Pipeline',
-      description: 'Scripts for ETL processes, Pandas data cleaning, and Apache Airflow DAG configurations.',
-      author: 'data_knight',
-      snippetCount: 15,
-      tags: ['Python', 'Pandas', 'Airflow', 'Data Engineering'],
-      updatedAt: new Date('2026-02-20T16:30:00Z')
-    },
-    {
-      id: 'g-5',
-      name: 'Kubernetes Manifests Collection',
-      description: 'Production-ready K8s deployments, services, ingress controllers, and config maps.',
-      author: 'devops_guru',
-      snippetCount: 31,
-      tags: ['Kubernetes', 'DevOps', 'YAML', 'Helm'],
-      updatedAt: new Date('2026-02-18T10:00:00Z')
-    },
-    {
-      id: 'g-6',
-      name: 'React Performance Hooks',
-      description: 'Custom React hooks focused on memoization, debouncing, and avoiding unnecessary re-renders.',
-      author: 'react_dev',
-      snippetCount: 19,
-      tags: ['React', 'Hooks', 'Performance', 'JavaScript'],
-      updatedAt: new Date('2026-02-15T08:20:00Z')
-    }
-  ]);
 }

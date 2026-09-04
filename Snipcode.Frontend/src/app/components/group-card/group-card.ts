@@ -13,7 +13,7 @@ import {
 // Spartan UI Imports
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
-import { SnippetGroup } from '../../core/models/group.model';
+import { GroupResponseDto } from '../../core/models/group.model';
 
 @Component({
   selector: 'app-group-card',
@@ -37,5 +37,5 @@ import { SnippetGroup } from '../../core/models/group.model';
   templateUrl: './group-card.html'
 })
 export class GroupCard {
-  group = input.required<SnippetGroup>();
+  group = input.required<GroupResponseDto>();
 }

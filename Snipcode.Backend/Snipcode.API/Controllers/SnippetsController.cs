@@ -42,11 +42,19 @@ public class SnippetsController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("public/stats")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetPublicStats(CancellationToken ct)
+    {
+        var result = await _snippetService.GetPublicStatsAsync(ct);
+        return Ok(result);
+    }
+
     [HttpGet("my")]
     [Authorize]
-    public async Task<IActionResult> GetMySnippets(CancellationToken ct)
+    public async Task<IActionResult> GetMySnippets([FromQuery] SnippetQueryDto query, CancellationToken ct)
     {
-        var result = await _snippetService.GetMySnippetsAsync(User.GetUserId(), ct);
+        var result = await _snippetService.GetMySnippetsAsync(User.GetUserId(), query, ct);
         return Ok(result);
     }
 

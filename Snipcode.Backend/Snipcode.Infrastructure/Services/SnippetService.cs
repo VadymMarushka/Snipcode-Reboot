@@ -81,7 +81,6 @@ public class SnippetService : ISnippetService
         var codeContent = await _blobStorage.GetSnippetContentAsync(snippet.BlobKey, ct);
         return snippet.ToResponseDto(codeContent);
     }
-
     public async Task<PagedResultDto<SnippetResponseDto>> GetPublicSnippetsAsync(SnippetQueryDto query, CancellationToken ct = default)
     {
         var baseQuery = _dbContext.Snippets
@@ -99,9 +98,14 @@ public class SnippetService : ISnippetService
                 (s.Description != null && s.Description.ToLower().Contains(term)));
         }
 
-        if (query.Technology.HasValue)
+        if (query.Category.HasValue)
         {
-            baseQuery = baseQuery.Where(s => s.Technology == query.Technology.Value);
+            baseQuery = baseQuery.Where(s => s.Group != null && s.Group.Category == query.Category.Value);
+        }
+
+        if (query.Technologies != null && query.Technologies.Count > 0)
+        {
+            baseQuery = baseQuery.Where(s => query.Technologies.Contains(s.Technology));
         }
 
         if (!string.IsNullOrWhiteSpace(query.Tag))
@@ -111,12 +115,16 @@ public class SnippetService : ISnippetService
         }
 
         var totalCount = await baseQuery.CountAsync(ct);
-
         var pageNumber = query.PageNumber < 1 ? 1 : query.PageNumber;
-        var pageSize = query.PageSize is < 1 or > 50 ? 10 : query.PageSize;
+        var pageSize = query.PageSize is < 1 or > 50 ? 12 : query.PageSize;
+
+        baseQuery = query.SortBy?.ToLower() switch
+        {
+            "oldest" => baseQuery.OrderBy(s => s.CreatedAt),
+            _ => baseQuery.OrderByDescending(s => s.CreatedAt)
+        };
 
         var snippets = await baseQuery
-            .OrderByDescending(s => s.CreatedAt)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(ct);
@@ -131,24 +139,82 @@ public class SnippetService : ISnippetService
         return new PagedResultDto<SnippetResponseDto>(resultList, totalCount, pageNumber, pageSize);
     }
 
-    public async Task<IEnumerable<SnippetResponseDto>> GetMySnippetsAsync(Guid userId, CancellationToken ct = default)
+    public async Task<SnippetStatsDto> GetPublicStatsAsync(CancellationToken ct = default)
     {
-        var snippets = await _dbContext.Snippets
+        var publicSnippets = _dbContext.Snippets.Where(s => s.IsPublic);
+
+        var totalCount = await publicSnippets.CountAsync(ct);
+
+        var techCounts = await publicSnippets
+            .GroupBy(s => s.Technology)
+            .Select(g => new { Tech = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.Tech, x => x.Count, ct);
+
+        var categoryCounts = await publicSnippets
+            .Where(s => s.Group != null)
+            .GroupBy(s => s.Group!.Category)
+            .Select(g => new { Cat = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.Cat, x => x.Count, ct);
+
+        return new SnippetStatsDto(categoryCounts, techCounts, totalCount);
+    }
+
+    public async Task<PagedResultDto<SnippetResponseDto>> GetMySnippetsAsync(Guid userId, SnippetQueryDto query, CancellationToken ct = default)
+    {
+        var baseQuery = _dbContext.Snippets
             .Include(s => s.Author)
             .Include(s => s.Group)
             .Include(s => s.SnippetTags).ThenInclude(st => st.Tag)
             .Where(s => s.AuthorId == userId)
-            .OrderByDescending(s => s.CreatedAt)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(query.SearchTerm))
+        {
+            var term = query.SearchTerm.Trim().ToLower();
+            baseQuery = baseQuery.Where(s =>
+                s.Title.ToLower().Contains(term) ||
+                (s.Description != null && s.Description.ToLower().Contains(term)));
+        }
+
+        if (query.Category.HasValue)
+        {
+            baseQuery = baseQuery.Where(s => s.Group != null && s.Group.Category == query.Category.Value);
+        }
+
+        if (query.Technologies != null && query.Technologies.Count > 0)
+        {
+            baseQuery = baseQuery.Where(s => query.Technologies.Contains(s.Technology));
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.Tag))
+        {
+            var tag = query.Tag.Trim().ToLower();
+            baseQuery = baseQuery.Where(s => s.SnippetTags.Any(st => st.Tag.Name == tag));
+        }
+
+        var totalCount = await baseQuery.CountAsync(ct);
+        var pageNumber = query.PageNumber < 1 ? 1 : query.PageNumber;
+        var pageSize = query.PageSize is < 1 or > 50 ? 12 : query.PageSize;
+
+        baseQuery = query.SortBy?.ToLower() switch
+        {
+            "oldest" => baseQuery.OrderBy(s => s.CreatedAt),
+            _ => baseQuery.OrderByDescending(s => s.CreatedAt)
+        };
+
+        var snippets = await baseQuery
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync(ct);
 
-        var result = new List<SnippetResponseDto>();
+        var resultList = new List<SnippetResponseDto>();
         foreach (var snippet in snippets)
         {
             var codeContent = await _blobStorage.GetSnippetContentAsync(snippet.BlobKey, ct);
-            result.Add(snippet.ToResponseDto(codeContent));
+            resultList.Add(snippet.ToResponseDto(codeContent));
         }
 
-        return result;
+        return new PagedResultDto<SnippetResponseDto>(resultList, totalCount, pageNumber, pageSize);
     }
 
     public async Task<SnippetResponseDto> UpdateAsync(Guid id, UpdateSnippetDto dto, Guid userId, CancellationToken ct = default)
